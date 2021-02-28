@@ -1,0 +1,58 @@
+<html>
+<head>
+<script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+<title>bot</title>
+</head>
+<body>
+<button id="btn">DRRR</button>
+<iframe style="" name="hiddenIFrame" id="hiddenIFrame"></iframe>
+<div style="position:absolute;top:200px;left:0px;min-height:500px;min-width:500px;background-color:#888" id="text"></div>
+<script>
+
+document.getElementById("btn").onclick=function(){
+  //sendMessage("hello world");
+  get();
+};
+function decode(str){
+	return str.replace(/\\x(\w{2})/g,function(_,$1){ return String.fromCharCode(parseInt($1,16)) });
+}
+function sendMessage(msg){
+  post("https://drrr.com/room/",{"message":msg});
+}
+function get(){
+	$.ajax({
+		url:"http://127.0.0.1:5010/1",
+		//async:false,
+		success:function(data){
+			data=unescape(data.replace(/\u/g, "%u"));
+			for(var i=0;i<data.length;i++){
+				if(data.charAt(i)=='\\')data = data.substring(0,i) + data.substring(i+1,data.length);
+			}
+			for(var i=0;i<data.length;i++){
+				if(data.charAt(i)=='%')data = data.substring(0,i) + data.substring(i+1,data.length);
+			}
+			//#TODO here
+			console.log(data);
+			document.getElementById("text").innerHTML=data;
+		}
+	});
+}
+function post(url,PARAMS){
+  var temp=document.createElement("form");
+  temp.action=url;
+  temp.method="post";
+  temp.setAttribute("target","hiddenIFrame");
+  temp.style.display="none";
+  for(var x in PARAMS){
+    var opt=document.createElement("textarea");
+    opt.name=x;
+    opt.value=PARAMS[x];
+    temp.appendChild(opt);
+  }
+  document.body.appendChild(temp);
+  temp.submit();
+  return temp;
+}
+</script>
+</body>
+</html>
